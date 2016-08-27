@@ -1,0 +1,135 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html, body {
+	height: 100vh;
+	overflow: hidden;
+}
+
+body {
+	min-width: 1000px;
+	font-family: 'Julius Sans One', 'Arial', 'sans-serif';
+}
+
+ul, li {
+	list-style-type: none;
+	margin:0;
+	padding: 0;
+}
+
+a {
+	text-decoration: none;
+	color: black;
+}
+
+a.current-search {
+	background: yellow;
+}
+
+.sides {
+	width: 200px;
+	height: 70vh;
+	text-align: center;
+	display: inline-block;
+}
+
+#left {
+	float: left;
+}
+
+#data-frame {
+	float: left;
+	width: calc(100% - 400px);
+	height: 70vh;
+	border: 1px solid black;
+	overflow: hidden;
+}
+
+#data-frame p {
+	width: calc( 10% - 14px );
+	margin: 7px;
+	float: left;
+	background: #ddd;
+}
+#data-frame p:nth-of-type(10n+11) {
+	clear:both;
+}
+#data-frame img {
+	width: 100px;
+}
+
+#right {
+	float: left;
+}
+
+#top {
+	height: 100px;
+	position: relative;
+}
+
+#top ul {
+	position: absolute;
+	bottom: 40px;
+	left: calc(50% - 80px);
+	transform: translate(-50%, 0);
+}
+
+#top ul li {
+	width: 30px;
+	display: inline-block;
+	transform: rotate(315deg) translate(25px, 51px);
+}
+
+#bottom {
+	height: 20vh;
+	clear: both;
+	text-align: center;
+	position: relative;
+	padding-top: 20px;
+}
+
+#new-search-toggle {
+	width: 200px;
+	position: absolute;
+	left: 0;
+}
+
+#research-infobox {
+	position: relative;
+}
+
+#research-emotions,
+#research-keywords {
+	width: calc(50% - 200px);
+	position: absolute;
+}
+#research-emotions {
+	left: 200px;
+}
+#research-keywords {
+	left: 50%;
+}
+
+#research-emotions p span,
+#research-keywords p span {
+	opacity: 0;
+	transition: opacity .5s, background .5s .5s;
+	background: yellow;
+}
+#research-emotions p span.visible,
+#research-keywords p span.visible {
+	opacity: 1;
+	background: transparent;
+}
+#research-submit-wrapper {
+	width: 200px;
+	position: absolute;
+	right: 0;
+}
+#research-submit {
+	padding: 7px;
+	background: yellow;
+}
