@@ -49,10 +49,10 @@ a.current-search {
 }
 
 #data-frame p {
-	width: calc( 10% - 14px );
 	margin: 7px;
 	float: left;
 	background: #ddd;
+	overflow: hidden;
 }
 #data-frame p:nth-of-type(10n+11) {
 	clear:both;
@@ -88,18 +88,43 @@ a.current-search {
 	clear: both;
 	text-align: center;
 	position: relative;
-	padding-top: 20px;
+	top: 20px;
 }
 
 #new-search-toggle {
 	width: 200px;
 	position: absolute;
-	left: 0;
+	z-index: 2;
 }
 
 #research-infobox {
 	position: relative;
 }
+
+/* active */
+#research-emotions,
+#research-keywords,
+#research-submit-wrapper {
+	transition: top .5s;
+	top: 150px;
+}
+#research-emotions.active,
+#research-keywords.active,
+#research-submit-wrapper.active {
+	top: 0;
+}
+#new-search-toggle.active {
+	left: 0;
+	transform: translate(0,0);
+	transition: left .5s, transform .5s;
+}
+#new-search-toggle {
+	left: 50%;
+	transform: translate(-50%, 0);
+	transition: left .5s, transform .5s;
+}
+
+
 
 #research-emotions,
 #research-keywords {
