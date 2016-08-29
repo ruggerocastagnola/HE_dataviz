@@ -10,9 +10,76 @@ html, body {
 }
 
 body {
-	min-width: 1000px;
+	width: 1024px;
 	font-family: 'Julius Sans One', 'Arial', 'sans-serif';
+	margin: 0 auto;
+	position: relative;
 }
+
+#frame {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 1024px;
+	height: 670px;
+}
+
+#intro {
+	position: absolute;
+}
+
+#viz {
+	display: none;
+}
+
+#data-frame {
+	width: 874px;
+	height: 440px;
+}
+
+.sides {
+	width: calc( (100% - 874px) / 2 );
+	height: 440px;
+}
+
+.sides ul li {
+	margin-bottom: 22px;
+}
+
+#data-frame > * {
+	width: 95px;
+	height: 95px;
+}
+
+#top {
+	height: 100px;
+}
+
+#bottom {
+	height: 130px;
+}
+
+@media only screen and (min-width: 1280px) {
+	body, #frame {
+		width: 1280px;
+	}
+}
+
+@media only screen and (min-width: 1600px) {
+	body, #frame {
+		width: 1600px;
+	}
+}
+
+@media only screen and (min-width: 1920px) {
+	body, #frame {
+		width: 1920px;
+	}
+}
+
+
+
 
 ul, li {
 	list-style-type: none;
@@ -30,8 +97,6 @@ a.current-search {
 }
 
 .sides {
-	width: 200px;
-	height: 70vh;
 	text-align: center;
 	display: inline-block;
 }
@@ -40,33 +105,36 @@ a.current-search {
 	float: left;
 }
 
+#right {
+	float: right;
+}
+
 #data-frame {
-	float: left;
-	width: calc(100% - 400px);
-	height: 70vh;
-	border: 1px solid black;
+	display: inline-block;
+	background: black;
 	overflow: hidden;
 }
 
 #data-frame p {
-	margin: 7px;
 	float: left;
-	background: #ddd;
 	overflow: hidden;
-}
-#data-frame p:nth-of-type(10n+11) {
-	clear:both;
-}
-#data-frame img {
-	width: 100px;
+	background: #ddd;
 }
 
-#right {
+#data-frame > * {
+	margin: 7px;
+	padding: 5px;
+}
+
+#data-frame > *:nth-child(8n+9) {
+	clear:both;
+}
+#data-frame div {
 	float: left;
+	background-size: cover;
 }
 
 #top {
-	height: 100px;
 	position: relative;
 }
 
@@ -84,11 +152,9 @@ a.current-search {
 }
 
 #bottom {
-	height: 20vh;
-	clear: both;
 	text-align: center;
 	position: relative;
-	top: 20px;
+	padding-top: 35px;
 }
 
 #new-search-toggle {
@@ -151,8 +217,8 @@ a.current-search {
 }
 #research-submit-wrapper {
 	width: 200px;
-	position: absolute;
-	right: 0;
+	position: relative;
+	float: right;
 }
 #research-submit {
 	padding: 7px;
