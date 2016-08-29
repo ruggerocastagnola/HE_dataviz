@@ -145,6 +145,8 @@
       currentItems.activeImgs = [];
       currentItems.usedText = [];
       currentItems.usedImgs = [];
+
+      console.log(currentItems);
       
       // display
       append(textToDisplay, imgsToDisplay, text, imgs);
@@ -162,23 +164,30 @@
 
     var append = function(textToDisplay, imgsToDisplay, text, imgs) {
       // build html
+      console.log(text);
+      console.log(textToDisplay);
+      console.log(imgs);
+      console.log(imgsToDisplay);
       var html = '';
       var totItems = textToDisplay + imgsToDisplay;
       var textCounter = 0, imgsCounter = 0;
       for(var i = 0; i < totItems; i++) {
-        if(textCounter < textToDisplay && imgsCounter < imgsToDisplay ) {
+        if(textCounter <= textToDisplay && imgsCounter <= imgsToDisplay) {
           if( getRandomInt(0,1) == 0 ){
             var img = getImg(imgs, currentItems.usedImgs);
             html += '<div style="background-image:url(' + img.entity + ');" /></div>';
             currentItems.activeImgs.push(img);
             currentItems.usedImgs.push(img);
+            imgsCounter++;
           } else {
             var singleText = getImg(text, currentItems.usedText);
             html += '<p>' + singleText.content + '</p>';
             currentItems.activeText.push(singleText);
             currentItems.usedText.push(singleText);
+            textCounter++;
           }
-        }
+          console.log('t: ' + textCounter + ' i: ' + imgsCounter);
+        } 
       }
       $dataFrame.html(html);
     };
