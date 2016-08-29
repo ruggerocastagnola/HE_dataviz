@@ -3,58 +3,10 @@
   $(function(){
     'use strict';
 
-    // settings
-    var settings = {
-      textEndpoint: 'http://164.132.225.138/~caketest/testcake/api/getContentByComfortEnergy?',
-      imgsEndpoint: 'http://164.132.225.138/~caketest/testcake/api/getImagesByComfortEnergy?'
-    };
-    /*
-    var firstSearch = {
-      emotions: ['all'],
-      keywords: ['lifeless']
-    };
-    */
-    var currentSearch = {
-      emotions: [],
-      keywords: []
-    };
-    var newSearch = {
-      emotions: [],
-      keywords: []
-    };
+    // manipulation utilities: not extending obj and array
+    // still shaky
 
-    var vizSettings = {
-      rows: 8,
-      cols: 4
-    };
-    var currentItems = {
-      text: [],
-      imgs: [],
-      textLeft: [],
-      imgsLeft: []
-    };
-
-    var standByTimer;
-    var standByStartUpTime = 60000;
-
-    // cache jquery sel
-    var $window = $(window);
-    var $dataFrame = $('#data-frame');
-    var $researchEmotions = $('#research-emotions');
-    var $researchKeywords = $('#research-keywords');
-    var $researchSubmit = $('#research-submit');
-    var $researchSubmitWrapper = $('#research-submit-wrapper');
-    var $newSearchToggle = $('#new-search-toggle');
-    var $labels = $('a:not(#research-submit');
-    var $allLinks = $('a');
-    var $infoboxEmotions = $('#research-emotions p');
-    var $infoboxKeywords = $('#research-keywords p');
-    var $viz = $('#viz');
-    var $intro = $('#intro');
-      
-    // utilities
-    // http://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object
-    // clone object
+    // clone object: http://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object
     var clone = function(obj) {
       if (null == obj || "object" != typeof obj) return obj;
       var copy = obj.constructor();
@@ -63,6 +15,7 @@
       }
       return copy;
     }
+
     // check if array contains element by key
     var contains = function(arr, needle, key) {
       for(var i = 0; i < arr.length; i++){
@@ -70,6 +23,7 @@
       }
       return false;
     };
+
     // remove element from array by key
     var removeFromArray = function(arr, el, key){
       for(var i = 0; i < arr.length; i++){
@@ -83,15 +37,11 @@
     // shuffle array: http://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
     var shuffle = function(array) {
       var currentIndex = array.length, temporaryValue, randomIndex;
-
-      // While there remain elements to shuffle...
       while (0 !== currentIndex) {
 
-        // Pick a remaining element...
         randomIndex = Math.floor(Math.random() * currentIndex);
         currentIndex -= 1;
 
-        // And swap it with the current element.
         temporaryValue = array[currentIndex];
         array[currentIndex] = array[randomIndex];
         array[randomIndex] = temporaryValue;
@@ -100,6 +50,7 @@
       return array;
     };
 
+    // produce an array of indexes between min and max
     var indexArr = function(min, max) {
       var arr = [];
       for(var i = min; i < max; i++) {
@@ -107,7 +58,244 @@
       }
       return arr;
     };
+    
+    // get item from array of obj by matching key
+    var getListItem = function(key, arr){
+      return arr.find(function(el){
+        return el[key] == key;
+      });
+    };
 
+    // get a random integer within a range
+    // http://stackoverflow.com/questions/1527803/generating-random-whole-numbers-in-javascript-in-a-specific-range
+    var getRandomInt = function(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+
+
+
+
+
+
+    /**************************************/
+    /**************************************/
+    /*             SETUP PARAMS           */
+    /**************************************/
+    /**************************************/
+    // terms: filters
+    var emotions = [{
+      label: "all",
+      comfort: "null",
+      energy: "null"
+    },{
+      label: "surprise",
+      comfort: "-6",
+      energy: "221"
+    },{
+      label: "happiness",
+      comfort: "205",
+      energy: "82"
+    },{
+      label: "pleasure",
+      comfort: "186",
+      energy: "2"
+    },{
+      label: "relax",
+      comfort: "98",
+      energy: "-136"
+    },{
+      label: "sadness",
+      comfort: "-210",
+      energy: "-86"
+    },{
+      label: "anger",
+      comfort: "-201",
+      energy: "100"
+    },{
+      label: "fear",
+      comfort: "-165",
+      energy: "150"
+    },{
+      label: "agitation",
+      comfort: "-88",
+      energy: "139"
+    },{
+      label: "pain",
+      comfort: "-37",
+      energy: "96"
+    }];
+
+    // terms: additive keywords
+    var inhabit = [{
+      label: "inhabit",
+      researchTwitter: "", 
+      researchInsta: ""
+    },{ 
+      label: "locate",
+      researchTwitter: "102", 
+      researchInsta: "134"
+    },{
+      label: "occupy",
+      researchTwitter: "", 
+      researchInsta: ""
+    },{
+      label: "populate",
+      researchTwitter: "", 
+      researchInsta: ""
+    },{
+      label: "possess",
+      researchTwitter: "", 
+      researchInsta: ""
+    },{
+      label: "reside",
+      researchTwitter: "", 
+      researchInsta: ""
+    },{
+      label: "abide",
+      researchTwitter: "", 
+      researchInsta: ""
+    },{
+      label: "lodge",
+      researchTwitter: "", 
+      researchInsta: ""
+    },{
+      label: "dwell",
+      researchTwitter: "", 
+      researchInsta: ""
+    },{
+      label: "settle",
+      researchTwitter: "", 
+      researchInsta: ""
+    },{
+      label: "stay",
+      researchTwitter: "", 
+      researchInsta: ""
+    }];
+
+    // terms: additive keywords
+    var uninhabit = [{
+      label: "uninhabit",
+      researchTwitter: "",
+      researchInsta: ""
+      },{
+      label: "deserted",
+      researchTwitter: "",
+      researchInsta: "144"
+      },{
+      label: "desolate",
+      researchTwitter: "",
+      researchInsta: "145"
+      },{
+      label: "vacant",
+      researchTwitter: "",
+      researchInsta: "146"
+      },{
+      label: "abandoned",
+      researchTwitter: "",
+      researchInsta: ""
+      },{
+      label: "unoccupied",
+      researchTwitter: "",
+      researchInsta: "147"
+      },{
+      label: "empty",
+      researchTwitter: "",
+      researchInsta: "149"
+      },{
+      label: "forsaken",
+      researchTwitter: "",
+      researchInsta: "150"
+      },{
+      label: "leave",
+      researchTwitter: "",
+      researchInsta: "151"
+      },{
+      label: "free",
+      researchTwitter: "",
+      researchInsta: "152"
+      },{
+      label: "lifeless",
+      researchTwitter: "123",
+      researchInsta: "153"
+    }];
+
+    // API endpoints settings
+    var settings = {
+      textEndpoint: 'http://164.132.225.138/~caketest/testcake/api/getContentByComfortEnergy?',
+      imgsEndpoint: 'http://164.132.225.138/~caketest/testcake/api/getImagesByComfortEnergy?'
+    };
+
+    // first search setup
+    var allEmotions = getListItem('all', emotions);
+    var lifeless = getListItem('lifeless', uninhabit); 
+    var firstSearch = {
+      emotions: [allEmotions],
+      keywords: [lifeless]
+    };
+
+    // the elements of the search on display
+    var currentSearch = {
+      emotions: [],
+      keywords: []
+    };
+
+    // the elements of the new planned search 
+    // stored before "launch" is hit
+    var newSearch = {
+      emotions: [],
+      keywords: []
+    };
+
+    // utility to sync with the css
+    // DO NOT TOUCH
+    var vizSettings = {
+      rows: 8,
+      cols: 4
+    }; 
+
+    // stores the current situation
+    var currentItems = {
+      text: [],
+      imgs: [],
+      textLeft: [],
+      imgsLeft: []
+    };
+
+    // relevant timers
+    var standByTimer;
+    var standByStartUpTime = 60000;
+
+    var newItemUpdateTime = 1000;
+    var realTimeUpdateLimit = 5;
+
+    // cache all jquery sel
+    var $window = $(window);
+    var $emotions = $('#emotions');
+    var $inhabit = $('#left').find('.keywords');
+    var $uninhabit = $('#right').find('.keywords');
+    var $dataFrame = $('#data-frame');
+    var $researchEmotions = $('#research-emotions');
+    var $researchKeywords = $('#research-keywords');
+    var $researchSubmit = $('#research-submit');
+    var $researchSubmitWrapper = $('#research-submit-wrapper');
+    var $newSearchToggle = $('#new-search-toggle');
+    var $labels = $('a:not(#research-submit');
+    var $allLinks = $('a');
+    var $infoboxEmotions = $('#research-emotions p');
+    var $infoboxKeywords = $('#research-keywords p');
+    var $viz = $('#viz');
+    var $intro = $('#intro');
+      
+    
+
+
+
+
+    /**************************************/
+    /**************************************/
+    /*             UI UTILITIES           */
+    /**************************************/
+    /**************************************/
     // handle label of the UI
     var setActive = function(label){
       $('a[data-label="'+ label + '"]').addClass('current-search');
@@ -137,14 +325,32 @@
       $infoboxKeywords.html('');
     };
 
-    // render new contents in the data frame at the center
-    var render = function(text, imgs, settings){
+
+
+    /**************************************/
+    /**************************************/
+    /*           FETCH & UPDATE           */
+    /**************************************/
+    /**************************************/
+
+    // setup render routine for new contents 
+    // in the data frame at the center
+    var renderSetup = function(text, imgs, settings){
+
+      // get total number of items to display in grid
       var totItems = settings.rows*settings.cols;
+
+      // setup counters to avoid overappending
       var textToDisplay = 0, imgsToDisplay = 0;
+
+      // if both arrays are big, get half imgs, half text
       if(text.length > totItems/2 && imgs.length > totItems/2) {
         textToDisplay = totItems/2;
         imgsToDisplay = totItems/2;
       } else 
+
+      // else find how to compensate between the biggest 
+      // and smallest array, to avoid outOfBounds e
       if(text.length < totItems/2 && imgs.length > totItems/2) {
         textToDisplay = text.length;  
         imgsToDisplay = 
@@ -170,14 +376,10 @@
       currentItems.textLeft = shuffle(indexArr(0, text.length));
       currentItems.imgsLeft = shuffle(indexArr(0, imgs.length))
       
-      // display
-      append(textToDisplay, imgsToDisplay, currentItems);
+      // start append routine
+      appendSetup(textToDisplay, imgsToDisplay, currentItems);
     };
 
-    // http://stackoverflow.com/questions/1527803/generating-random-whole-numbers-in-javascript-in-a-specific-range
-    var getRandomInt = function(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
 
     var getNewEl = function(currentItems, type){
       if(type == 'img') {
@@ -191,14 +393,17 @@
       return html;
     };
 
-    var append = function(textToDisplay, imgsToDisplay, currentItems) {
+    var appendSetup = function(textToDisplay, imgsToDisplay, currentItems) {
       var html = '';
+
       // get total count of items to display
       var totItems = textToDisplay + imgsToDisplay;
-      // setup counters
+      // setup counters again
       var textCounter = 0, imgsCounter = 0;
 
+      // while you've not reached full capacity
       while(imgsCounter < imgsToDisplay || textCounter < textToDisplay) {
+        
         // get randomly if text or image
         if( getRandomInt(0,1) == 0 ){
           if(imgsCounter < imgsToDisplay) {
@@ -212,35 +417,58 @@
           }
         }  
       }
+
+      // append all
       $dataFrame.html(html);
 
       // technical delay to wait append to finish
+      // just for safety
       setTimeout(function(){
 
-        // fade elements in in a random pattern
+        // get all elements in the central frame
         var $items = $dataFrame.find('*');
+
+        // hide them all
         $items.addClass('hidden');
+
+        // shuffle array of indexes to generate
+        // a random fadein pattern
         var fadeInPattern = shuffle(indexArr(0, $items.length));
+        
+        // fade sequentially
         var fadeIn = setInterval(function(){
           $items.eq(fadeInPattern[0]).removeClass('hidden').addClass('visible');
           fadeInPattern.shift();
+          
+          // when done with the fading, setup up 
+          // updating the frame with new elements
+          // from the same selection
           if(fadeInPattern.length == 0) {
             clearInterval(fadeIn);
             var counter = 0;
             // start autoupdate
             var autoUpdate = setInterval(function(){
+              console.log('update');
               counter = renderNewEl(autoUpdate, currentItems, counter);
-            }, 1000);
+            }, newItemUpdateTime);
           }
-        }, 100);
-      }, 20);
+        }, 100); // technical delay
+      }, 20); // technical delay
     };
 
+    // render single item in the central frame
     var renderNewEl = function(timer, currentItems, counter) {
+      
+      // store selection
       var $items = $dataFrame.find('*');
+
+      // get random index from selection
       var index = getRandomInt(0, $items.length);
+
+      // define item that will be replaced
       var $itemToChange = $items.eq(index);
 
+      // get new element (whether img or text)
       var newEl = false;
       var html = '';
       while(!newEl) {
@@ -257,19 +485,18 @@
         }
       }
 
+      // swap and animate out/in
       html = $(html);
       $itemToChange.addClass('hidden').removeClass('visible');
       setTimeout(function(){
         $itemToChange.replaceWith(html);
         $(html).addClass('hidden');
         setTimeout(function(){
-          $(html).addClass('visible');
-          console.log(counter);
+          $(html).addClass('visible').removeClass('hidden');
 
-          if(counter > 4) {
+          if(counter > realTimeUpdateLimit-1) {
             var textUrl = getQueryPath(currentSearch, 'text');
             var imgsUrl = getQueryPath(currentSearch, 'imgs');
-            console.log('call');
             clearInterval(timer);
             ajaxCall(textUrl, imgsUrl, false);
           }
@@ -277,26 +504,36 @@
         }, 150);
       }, 250);
       counter++;
+
+      // return counter to update with new real time data
       return counter;
     };
     
+    // fetch from server: note that 2 calls are required
+    // to fetch imgs from getImages and getText endpoints
+    // aka callback hell
     var ajaxCall = function(textPath, imgsPath, clear){
       $.ajax({
         url: settings.textEndpoint + textPath,
         success: function(textData, textStatus, jqXHR){
-          console.log('first success');
           $.ajax({
             url: settings.imgsEndpoint + imgsPath,
             success: function(imgsData, textStatus, jqXHR){
-              console.log('second success');
-              render(textData.results, imgsData.results, vizSettings);
+              renderSetup(textData.results, imgsData.results, vizSettings);
+              
+              // if the search is effectively new
+              // and not a real time autoupdate on 
+              // the current search
+              // clean up all references and setup
+              // new basic search
               if(clear) {
                 clearSearchTerms();
                 clearInfobox();
                 updateInfobox({'label': 'all'}, 'emotions', 'add');
 
                 toggleNewSearch();
-                // update selected labels in the UI
+
+                // also update selected labels in the UI
                 clearActive();
                 setActiveMultiple(currentSearch.emotions, 'label');
                 setActiveMultiple(currentSearch.keywords, 'label');
@@ -307,6 +544,7 @@
       });
     };
 
+    // composes the query path according to the HE API
     var getQueryPath = function(params, type){
       var path = 'researches=';
 
@@ -332,12 +570,16 @@
       return path;
     };
 
+    // basic update routine:
+    // build query path, do ajax call
     var update = function(e, newSearch){
       var textUrl = getQueryPath(newSearch, 'text');
       var imgsUrl = getQueryPath(newSearch, 'imgs');
       ajaxCall(textUrl, imgsUrl, true);
     };
 
+    // utility to append data on the UI
+    // gives feedback to the user on next planned search
     var appendNewSearchLabel = function(data, $el, type) {
       type == 'clear' ?
         $el.html('<span>' + data.label + '</span> '):
@@ -348,22 +590,21 @@
     };
 
     // update the information box on the bottom
+    // according to the interaction with the UI
     var updateInfobox = function(data, type, action){
       if(action == 'add'){
-
         if(type == 'emotions' && data.label == 'all') {
-          // clean
+          // all cleans all other emotions
           appendNewSearchLabel(data, $infoboxEmotions, 'clear');
-
         } else {
           var isAll = contains(newSearch.emotions, {'label': 'all'}, 'label');
 
           if(isAll) {
-            // clear
+            // see above
             var $infobox = $('#research-' + type + ' p');
             appendNewSearchLabel(data, $infobox, 'clear');
           } else {
-            // append
+            // otherwise, list all emotion filters
             var $infobox = $('#research-' + type + ' p');
             appendNewSearchLabel(data, $infobox, 'append');
           }
@@ -377,8 +618,8 @@
       }
     };
 
-
-
+    // event handler: update UI and cached data
+    // accordingly with the interactions
     var onClick = function(e, newSearch){
       e.preventDefault();
 
@@ -393,6 +634,7 @@
         // check if current data is already in array
         var isDataInArray = contains(newSearch.emotions, searchKey, 'label');
 
+        // update feedback and cached info
         if(!isDataInArray){
           updateInfobox(searchKey, 'emotions', 'add');
 
@@ -424,7 +666,7 @@
       }  
     };
 
-    // stand by mode
+    // stand by mode utilities
     var resetStandByTimer = function(){
       clearTimeout(standByTimer);
       standByTimer = setTimeout(function(){
@@ -446,7 +688,25 @@
       }, 250);
     };
 
-    
+    // startup html setup
+    // more verbose than needed, but might change
+    var appendEmotions = (function(emotions){
+      $emotions.append(emotions.reduce(function(prev,el){
+          return prev += '<li><a href="#" data-label="'+ el.label + '" data-comfort="' + el.comfort + '" data-energy="'+ el.energy + '">' + el.label + '</a></li>';
+        }, ''));
+    })(emotions);
+
+    var appendInhabit = (function(){
+      $inhabit.append(inhabit.reduce(function(prev,el){
+          return prev += '<li><a href="#" data-label="'+ el.label + '" data-research-twitter="' + el.researchTwitter + '" data-research-insta="'+ el.researchInsta + '">' + el.label + '</a></li>';
+        }, ''));
+    })(inhabit);
+
+    var appendUninhabit = (function(){
+      $uninhabit.append(uninhabit.reduce(function(prev,el){
+          return prev += '<li><a href="#" data-label="'+ el.label + '" data-research-twitter="' + el.researchTwitter + '" data-research-insta="'+ el.researchInsta + '">' + el.label + '</a></li>';
+        }, ''));
+    })(uninhabit);
 
     // interactions
     var toggleNewSearch = function(e){
@@ -455,11 +715,6 @@
       $researchKeywords.toggleClass('active');
       $researchSubmitWrapper.toggleClass('active');
     };
-
-    // setup
-    // dims
-    //vizSettings
-
 
     // event listeners
     $labels.on('click', 
@@ -470,6 +725,7 @@
       });
     $researchSubmit.on('click', function(e){ update(e, newSearch); });
 
+    // setup first UI feeback and research
     newSearch.emotions.push({label: 'all'});
     newSearch.keywords.push({label:"locate", researchTwitter:"102", researchInsta:"134"});
     ajaxCall('researches=134', 'researches=102', true);

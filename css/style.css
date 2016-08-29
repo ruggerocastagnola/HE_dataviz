@@ -49,6 +49,7 @@ body {
 }
 
 #data-frame > * {
+	cursor: pointer;
 	width: 95px;
 	height: 95px;
 }
@@ -112,18 +113,18 @@ a.current-search {
 
 #data-frame {
 	display: inline-block;
-	background: black;
+	/*background: black;*/
 	overflow: hidden;
 }
 
 #data-frame p {
 	float: left;
 	overflow: hidden;
-	background: #ddd;
+	/*background: #ddd;*/
 	position: relative;
 }
 
-/*
+/* shade effect?
 #data-frame > p::after {
 	content: ' ';
 	position: absolute;
@@ -213,7 +214,12 @@ a.current-search {
 #new-search-toggle {
 	left: 50%;
 	transform: translate(-50%, 0);
-	transition: left .5s, transform .5s;
+	background: transparent;
+	transition: left .5s, transform .5s, background .5s;
+}
+
+#new-search-toggle:hover {
+	background: yellow;
 }
 
 
