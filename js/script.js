@@ -30,10 +30,8 @@
     var currentItems = {
       text: [],
       imgs: [],
-      activeText: [],
-      activeImgs: [],
-      usedText: [],
-      usedImgs: []
+      textLeft: [],
+      imgsLeft: []
     };
 
     var standByTimer;
@@ -80,6 +78,34 @@
           break;
         }
       }
+    };
+
+    // shuffle array: http://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+    var shuffle = function(array) {
+      var currentIndex = array.length, temporaryValue, randomIndex;
+
+      // While there remain elements to shuffle...
+      while (0 !== currentIndex) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+      }
+
+      return array;
+    };
+
+    var indexArr = function(min, max) {
+      var arr = [];
+      for(var i = min; i < max; i++) {
+        arr.push(i);
+      }
+      return arr;
     };
 
     // handle label of the UI
@@ -141,15 +167,11 @@
       // update cached selection
       currentItems.text = clone(text);
       currentItems.imgs = clone(imgs);
-      currentItems.activeText = [];
-      currentItems.activeImgs = [];
-      currentItems.usedText = [];
-      currentItems.usedImgs = [];
-
-      console.log(currentItems);
+      currentItems.textLeft = shuffle(indexArr(0, text.length));
+      currentItems.imgsLeft = shuffle(indexArr(0, imgs.length))
       
       // display
-      append(textToDisplay, imgsToDisplay, text, imgs);
+      append(textToDisplay, imgsToDisplay, currentItems);
     };
 
     // http://stackoverflow.com/questions/1527803/generating-random-whole-numbers-in-javascript-in-a-specific-range
@@ -157,58 +179,128 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     };
 
-    var getImg = function(imgs, excluded) {
-      var i = getRandomInt(0, imgs.length-1);
-      return contains(imgs, imgs[i], 'entity') ? imgs[i] : getImg(imgs, excluded);
+    var getNewEl = function(currentItems, type){
+      if(type == 'img') {
+        var img = currentItems.imgs[currentItems.imgsLeft.shift()];
+        return '<div style="background-image:url(' + img.entity + ');" /></div>';
+      } else 
+      if(type == 'text') {
+        var text = currentItems.text[currentItems.textLeft.shift()];
+        return '<p>' + text.content + '</p>';
+      }
+      return html;
     };
 
-    var append = function(textToDisplay, imgsToDisplay, text, imgs) {
-      // build html
-      console.log(text);
-      console.log(textToDisplay);
-      console.log(imgs);
-      console.log(imgsToDisplay);
+    var append = function(textToDisplay, imgsToDisplay, currentItems) {
       var html = '';
+      // get total count of items to display
       var totItems = textToDisplay + imgsToDisplay;
+      // setup counters
       var textCounter = 0, imgsCounter = 0;
-      for(var i = 0; i < totItems; i++) {
-        if(textCounter <= textToDisplay && imgsCounter <= imgsToDisplay) {
-          if( getRandomInt(0,1) == 0 ){
-            var img = getImg(imgs, currentItems.usedImgs);
-            html += '<div style="background-image:url(' + img.entity + ');" /></div>';
-            currentItems.activeImgs.push(img);
-            currentItems.usedImgs.push(img);
+
+      while(imgsCounter < imgsToDisplay || textCounter < textToDisplay) {
+        // get randomly if text or image
+        if( getRandomInt(0,1) == 0 ){
+          if(imgsCounter < imgsToDisplay) {
+            html += getNewEl(currentItems, 'img');
             imgsCounter++;
-          } else {
-            var singleText = getImg(text, currentItems.usedText);
-            html += '<p>' + singleText.content + '</p>';
-            currentItems.activeText.push(singleText);
-            currentItems.usedText.push(singleText);
+          }
+        } else {
+          if(textCounter < textToDisplay) {
+            html += getNewEl(currentItems, 'text');
             textCounter++;
           }
-          console.log('t: ' + textCounter + ' i: ' + imgsCounter);
-        } 
+        }  
       }
       $dataFrame.html(html);
+
+      // technical delay to wait append to finish
+      setTimeout(function(){
+
+        // fade elements in in a random pattern
+        var $items = $dataFrame.find('*');
+        $items.addClass('hidden');
+        var fadeInPattern = shuffle(indexArr(0, $items.length));
+        var fadeIn = setInterval(function(){
+          $items.eq(fadeInPattern[0]).removeClass('hidden').addClass('visible');
+          fadeInPattern.shift();
+          if(fadeInPattern.length == 0) {
+            clearInterval(fadeIn);
+            var counter = 0;
+            // start autoupdate
+            var autoUpdate = setInterval(function(){
+              counter = renderNewEl(autoUpdate, currentItems, counter);
+            }, 1000);
+          }
+        }, 100);
+      }, 20);
+    };
+
+    var renderNewEl = function(timer, currentItems, counter) {
+      var $items = $dataFrame.find('*');
+      var index = getRandomInt(0, $items.length);
+      var $itemToChange = $items.eq(index);
+
+      var newEl = false;
+      var html = '';
+      while(!newEl) {
+        if( getRandomInt(0,1) == 0 ){
+          if(currentItems.imgsLeft.length > 0){
+            html = getNewEl(currentItems, 'img');
+            newEl = true;
+          }
+        } else {
+          if(currentItems.textLeft.length > 0){
+            html = getNewEl(currentItems, 'text');
+            newEl = true;
+          }
+        }
+      }
+
+      html = $(html);
+      $itemToChange.addClass('hidden').removeClass('visible');
+      setTimeout(function(){
+        $itemToChange.replaceWith(html);
+        $(html).addClass('hidden');
+        setTimeout(function(){
+          $(html).addClass('visible');
+          console.log(counter);
+
+          if(counter > 4) {
+            var textUrl = getQueryPath(currentSearch, 'text');
+            var imgsUrl = getQueryPath(currentSearch, 'imgs');
+            console.log('call');
+            clearInterval(timer);
+            ajaxCall(textUrl, imgsUrl, false);
+          }
+
+        }, 150);
+      }, 250);
+      counter++;
+      return counter;
     };
     
-    var ajaxCall = function(textPath, imgsPath){
+    var ajaxCall = function(textPath, imgsPath, clear){
       $.ajax({
         url: settings.textEndpoint + textPath,
         success: function(textData, textStatus, jqXHR){
+          console.log('first success');
           $.ajax({
             url: settings.imgsEndpoint + imgsPath,
             success: function(imgsData, textStatus, jqXHR){
+              console.log('second success');
               render(textData.results, imgsData.results, vizSettings);
-              clearSearchTerms();
-              clearInfobox();
-              updateInfobox({'label': 'all'}, 'emotions', 'add');
+              if(clear) {
+                clearSearchTerms();
+                clearInfobox();
+                updateInfobox({'label': 'all'}, 'emotions', 'add');
 
-              toggleNewSearch();
-              // update selected labels in the UI
-              clearActive();
-              setActiveMultiple(currentSearch.emotions, 'label');
-              setActiveMultiple(currentSearch.keywords, 'label');
+                toggleNewSearch();
+                // update selected labels in the UI
+                clearActive();
+                setActiveMultiple(currentSearch.emotions, 'label');
+                setActiveMultiple(currentSearch.keywords, 'label');
+              }
             }
           });
         }
@@ -243,7 +335,7 @@
     var update = function(e, newSearch){
       var textUrl = getQueryPath(newSearch, 'text');
       var imgsUrl = getQueryPath(newSearch, 'imgs');
-      ajaxCall(textUrl, imgsUrl);
+      ajaxCall(textUrl, imgsUrl, true);
     };
 
     var appendNewSearchLabel = function(data, $el, type) {
@@ -380,7 +472,7 @@
 
     newSearch.emotions.push({label: 'all'});
     newSearch.keywords.push({label:"locate", researchTwitter:"102", researchInsta:"134"});
-    ajaxCall('researches=134', 'researches=102');
+    ajaxCall('researches=134', 'researches=102', true);
     //{label:"lifeless", researchTwitter:"123", researchInsta:"153"}
     //ajaxCall('researches=123', 'researches=153');
     setActive('all');
@@ -389,7 +481,7 @@
     // interactions
     $newSearchToggle.on('click', toggleNewSearch);
 
-    $window.on('mousemove', clearStandBy);
+    //$window.on('mousemove', clearStandBy);
 
   });
 })(jQuery);

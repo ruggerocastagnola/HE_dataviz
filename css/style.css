@@ -27,11 +27,12 @@ body {
 
 #intro {
 	position: absolute;
-}
-
-#viz {
 	display: none;
 }
+
+/*#viz {
+	display: none;
+}*/
 
 #data-frame {
 	width: 874px;
@@ -119,11 +120,36 @@ a.current-search {
 	float: left;
 	overflow: hidden;
 	background: #ddd;
+	position: relative;
 }
+
+/*
+#data-frame > p::after {
+	content: ' ';
+	position: absolute;
+	top:0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	border-width: 15px;
+	border-style: solid;
+	border-image: linear-gradient(to bottom, #ddd, rgba(0, 0, 0, 0)) 1 100%;
+}
+*/
 
 #data-frame > * {
 	margin: 7px;
 	padding: 5px;
+	opacity: 0;
+}
+#data-frame > *.hidden {
+	opacity: 0;
+	transition: opacity .5s;
+}
+
+#data-frame > *.visible {
+	transition: opacity .5s;
+	opacity: 1;
 }
 
 #data-frame > *:nth-child(8n+9) {
