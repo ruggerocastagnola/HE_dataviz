@@ -27,12 +27,11 @@ body {
 
 #intro {
 	position: absolute;
-	display: none;
 }
 
-/*#viz {
+#viz {
 	display: none;
-}*/
+}
 
 #data-frame {
 	width: 874px;

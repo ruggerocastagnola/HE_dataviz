@@ -60,9 +60,9 @@
     };
     
     // get item from array of obj by matching key
-    var getListItem = function(key, arr){
+    var getListItem = function(match, arr, key){
       return arr.find(function(el){
-        return el[key] == key;
+        return el[key] == match;
       });
     };
 
@@ -226,11 +226,11 @@
     };
 
     // first search setup
-    var allEmotions = getListItem('all', emotions);
-    var lifeless = getListItem('lifeless', uninhabit); 
+    var lifeless = getListItem('lifeless', uninhabit, 'label'); 
+    
+    // currently only accepts one keyword and "all" emotions
     var firstSearch = {
-      emotions: [allEmotions],
-      keywords: [lifeless]
+      keywords: lifeless
     };
 
     // the elements of the search on display
@@ -268,12 +268,36 @@
     var newItemUpdateTime = 1000;
     var realTimeUpdateLimit = 5;
 
-    // cache all jquery sel
+
+    // cache key jquery selections
     var $window = $(window);
-    var $emotions = $('#emotions');
+    var $emotions = $('.emotions');
     var $inhabit = $('#left').find('.keywords');
     var $uninhabit = $('#right').find('.keywords');
     var $dataFrame = $('#data-frame');
+
+
+    // startup html setup
+    // more verbose than needed, but might change
+    var appendEmotions = (function(emotions){
+      $emotions.append(emotions.reduce(function(prev,el){
+          return prev += '<li><a href="#" data-label="'+ el.label + '" data-comfort="' + el.comfort + '" data-energy="'+ el.energy + '">' + el.label + '</a></li>';
+        }, ''));
+    })(emotions);
+
+    var appendInhabit = (function(){
+      $inhabit.append(inhabit.reduce(function(prev,el){
+          return prev += '<li><a href="#" data-label="'+ el.label + '" data-research-twitter="' + el.researchTwitter + '" data-research-insta="'+ el.researchInsta + '">' + el.label + '</a></li>';
+        }, ''));
+    })(inhabit);
+
+    var appendUninhabit = (function(){
+      $uninhabit.append(uninhabit.reduce(function(prev,el){
+          return prev += '<li><a href="#" data-label="'+ el.label + '" data-research-twitter="' + el.researchTwitter + '" data-research-insta="'+ el.researchInsta + '">' + el.label + '</a></li>';
+        }, ''));
+    })(uninhabit);
+
+    // cache the rest
     var $researchEmotions = $('#research-emotions');
     var $researchKeywords = $('#research-keywords');
     var $researchSubmit = $('#research-submit');
@@ -421,9 +445,12 @@
       // append all
       $dataFrame.html(html);
 
+      
       // technical delay to wait append to finish
       // just for safety
-      setTimeout(function(){
+      var appendTimer = setTimeout(function(){
+        // clear timer
+        clearTimeout(appendTimer);
 
         // get all elements in the central frame
         var $items = $dataFrame.find('*');
@@ -437,6 +464,7 @@
         
         // fade sequentially
         var fadeIn = setInterval(function(){
+          
           $items.eq(fadeInPattern[0]).removeClass('hidden').addClass('visible');
           fadeInPattern.shift();
           
@@ -444,16 +472,20 @@
           // updating the frame with new elements
           // from the same selection
           if(fadeInPattern.length == 0) {
+            
             clearInterval(fadeIn);
             var counter = 0;
+
             // start autoupdate
-            var autoUpdate = setInterval(function(){
-              console.log('update');
+            /*var autoUpdate = setInterval(function(){
               counter = renderNewEl(autoUpdate, currentItems, counter);
-            }, newItemUpdateTime);
+            }, newItemUpdateTime);*/
           }
-        }, 100); // technical delay
+        
+        }, 200); // between elements delay
+      
       }, 20); // technical delay
+      
     };
 
     // render single item in the central frame
@@ -519,6 +551,7 @@
           $.ajax({
             url: settings.imgsEndpoint + imgsPath,
             success: function(imgsData, textStatus, jqXHR){
+              
               renderSetup(textData.results, imgsData.results, vizSettings);
               
               // if the search is effectively new
@@ -528,15 +561,17 @@
               // new basic search
               if(clear) {
                 clearSearchTerms();
+                
                 clearInfobox();
                 updateInfobox({'label': 'all'}, 'emotions', 'add');
-
+                
                 toggleNewSearch();
 
                 // also update selected labels in the UI
                 clearActive();
                 setActiveMultiple(currentSearch.emotions, 'label');
                 setActiveMultiple(currentSearch.keywords, 'label');
+                
               }
             }
           });
@@ -627,7 +662,7 @@
       var searchKey = $target.data();
       var isEmotion = $target.parents('ul').hasClass('emotions');
       var isKeyword = $target.parents('ul').hasClass('keywords');
-    
+
       if(isEmotion) {
         // check if 'all' is in the emotions array
         var isAllInArray = contains(newSearch.emotions, {'label': 'all'}, 'label');
@@ -688,25 +723,7 @@
       }, 250);
     };
 
-    // startup html setup
-    // more verbose than needed, but might change
-    var appendEmotions = (function(emotions){
-      $emotions.append(emotions.reduce(function(prev,el){
-          return prev += '<li><a href="#" data-label="'+ el.label + '" data-comfort="' + el.comfort + '" data-energy="'+ el.energy + '">' + el.label + '</a></li>';
-        }, ''));
-    })(emotions);
-
-    var appendInhabit = (function(){
-      $inhabit.append(inhabit.reduce(function(prev,el){
-          return prev += '<li><a href="#" data-label="'+ el.label + '" data-research-twitter="' + el.researchTwitter + '" data-research-insta="'+ el.researchInsta + '">' + el.label + '</a></li>';
-        }, ''));
-    })(inhabit);
-
-    var appendUninhabit = (function(){
-      $uninhabit.append(uninhabit.reduce(function(prev,el){
-          return prev += '<li><a href="#" data-label="'+ el.label + '" data-research-twitter="' + el.researchTwitter + '" data-research-insta="'+ el.researchInsta + '">' + el.label + '</a></li>';
-        }, ''));
-    })(uninhabit);
+    
 
     // interactions
     var toggleNewSearch = function(e){
@@ -728,16 +745,16 @@
     // setup first UI feeback and research
     newSearch.emotions.push({label: 'all'});
     newSearch.keywords.push({label:"locate", researchTwitter:"102", researchInsta:"134"});
+    
+    // start first search
     ajaxCall('researches=134', 'researches=102', true);
-    //{label:"lifeless", researchTwitter:"123", researchInsta:"153"}
-    //ajaxCall('researches=123', 'researches=153');
     setActive('all');
     setActive('lifeless');
 
     // interactions
     $newSearchToggle.on('click', toggleNewSearch);
 
-    //$window.on('mousemove', clearStandBy);
+    $window.on('mousemove', clearStandBy);
 
   });
 })(jQuery);
