@@ -1,6 +1,7 @@
+# About
 This small demo is the output of the information visualization work group at "La Cura Summer School". This was an intense week long workshop and ecosystem revolving around the theme of what it means to "inhabit the planet". 
 
-You can try this demo online [here](https://lcss2016.ruggerocastagnola.com), read my depth article on the experience [here](https://parcodiyellowstone.it/en/lab/la-cura-summer-school), or my day to day journal [here](https://github.com/xdxdVSxdxd/LaCuraBook/blob/master/IT/La-Cura-Summer-School/Outputs/Data-Visualization/lcss2016_dataviz_work_group_diary.pdf).
+You can try this demo online [here](http://lcss2016.ruggerocastagnola.com), read my depth article on the experience [here](https://parcodiyellowstone.it/en/lab/la-cura-summer-school), or my day to day journal [here](https://github.com/xdxdVSxdxd/LaCuraBook/blob/master/IT/La-Cura-Summer-School/Outputs/Data-Visualization/lcss2016_dataviz_work_group_diary.pdf).
 
 We interpreted this topic through an exploration of the semantic and conceptual polarities underlying the notion of 'inhabiting'. We decided to visualize this using social media content (from the public domain), specifically images from Instagram and status updates from Twitter.
 
